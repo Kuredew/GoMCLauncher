@@ -4,19 +4,22 @@ import (
 	"log"
 
 	"github.com/Kuredew/GoMCLauncher/manager"
-	"github.com/Kuredew/GoMCLauncher/utils"
+	managerutils "github.com/Kuredew/GoMCLauncher/manager/manager_utils"
+	"github.com/Kuredew/GoMCLauncher/model"
 )
 
 var MC_LATEST_VERSION string
 var ASSET_INDEX int
 
 func main() {
-	instance, err := utils.GetInstanceName()
+	instance, err := managerutils.GetInstance()
 	if err != nil {
 		log.Printf("Error getting Instance : %s", err)
 
-		manager.NewInstance(manager.Instance{Name: "Kureichi Minecraft", Version: "1.21.8", Modloader: "fabric"})
+		manager.CreateNewInstance(model.Instance{Name: "Kureichi Minecraft", Version: "1.21.8", Modloader: "fabric"})
 	}
 
-	log.Printf("\nStarting %s", instance)
+	log.Printf("\nStarting %s", instance.Name)
+
+	manager.StartInstance(instance)
 }

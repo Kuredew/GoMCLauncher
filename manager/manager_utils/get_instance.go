@@ -1,27 +1,29 @@
-package utils
+package managerutils
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
+	"errors"
 
 	"github.com/Kuredew/GoMCLauncher/config"
+	"github.com/Kuredew/GoMCLauncher/model"
 )
 
-func GetInstanceName() (string, error) {
+func GetInstance() (model.Instance, error) {
 	entries, _ := os.ReadDir(config.INSTANCE_PATH_DIR)
 	var instancelist []interface{}
+	var instance model.Instance
 
 	if len(entries) < 1 {
-		return "", errors.New("no instance")
+		return instance, errors.New("no instance")
 	}
 
 	for _, entry := range entries {
 		instancelist = append(instancelist, entry.Name())
 	}
-
-	//return instancelist, nil
 
 	fmt.Print("\n\nChoose Instance to start playing minecraft\n\n")
 	for index, name := range instancelist {
@@ -35,5 +37,12 @@ func GetInstanceName() (string, error) {
 
 	userInputInt, _ := strconv.Atoi(userInput)
 
-	return instancelist[userInputInt - 1].(string), nil
+	selectedInstanceName := instancelist[userInputInt - 1].(string)
+
+	// Read config file in selected instance directory
+	configJson, _ := os.ReadFile(filepath.Join(config.INSTANCE_PATH_DIR, selectedInstanceName, "config.json"))
+
+	json.Unmarshal(configJson, &instance)
+
+	return instance, nil
 }

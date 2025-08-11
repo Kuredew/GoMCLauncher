@@ -1,45 +1,49 @@
 package manager
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/Kuredew/GoMCLauncher/config"
+	managerutils "github.com/Kuredew/GoMCLauncher/manager/manager_utils"
+	"github.com/Kuredew/GoMCLauncher/model"
 	"github.com/Kuredew/GoMCLauncher/services"
 )
 
-type Instance struct {
-	Name      string
-	Version   string
-	Modloader string
-}
+func getDependency(instance model.Instance) {
+	var libraries []interface{}
+	var assetList map[string]interface{}
 
-func NewInstance(instance Instance) bool {
-	newInstancePath := filepath.Join(config.INSTANCE_PATH_DIR, instance.Name)
-
-	os.MkdirAll(newInstancePath, 0755)
-
+	versionManifest := services.GetVersionManifest()
+	versionList := versionManifest["versions"].([]interface{})
+	
 	// search version in version manifest
-	version_manifest := services.GetVersionManifest()
-
-	version_list := version_manifest["versions"].([]interface{})
-
-	var data map[string]interface{}
-	for _, value := range version_list {
+	for _, value := range versionList {
 		id := value.(map[string]interface{})["id"].(string)
 
 		if id == instance.Version {
-			data = services.GetAssetIndex(value.(map[string]interface{}))
+			libraries, assetList = services.GetDependency(value.(map[string]interface{}))
+
+			managerutils.DownloadLibraries(libraries)
+			managerutils.DownloadAsset(assetList)
 		}
 	}
-	fmt.Print(data)
+}
+
+func CreateNewInstance(instance model.Instance) bool {
+	newInstancePath := filepath.Join(config.INSTANCE_PATH_DIR, instance.Name)
+	os.MkdirAll(newInstancePath, 0755)
+
+	getDependency(instance)
 
 	return true
 }
 
-func StartInstance(instance Instance) bool {
-	fmt.Print(instance.Name)
+func StartInstance(instance model.Instance) bool {
+	instancePath := filepath.Join(config.INSTANCE_PATH_DIR, instance.Name)
+	os.MkdirAll(instancePath, 0755)
+
+	getDependency(instance)
 
 	return true
 }
