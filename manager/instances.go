@@ -25,7 +25,7 @@ func getDependency(instance model.Instance) {
 			libraries, assetList = services.GetDependency(value.(map[string]interface{}))
 
 			managerutils.GetLibraries(libraries)
-			managerutils.DownloadAsset(assetList)
+			managerutils.GetAsset(assetList)
 		}
 	}
 }
