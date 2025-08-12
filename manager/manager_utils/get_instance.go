@@ -13,7 +13,7 @@ import (
 )
 
 func GetInstance() (model.Instance, error) {
-	entries, _ := os.ReadDir(config.INSTANCE_PATH_DIR)
+	entries, _ := os.ReadDir(config.InstanceDir)
 	var instancelist []interface{}
 	var instance model.Instance
 
@@ -40,7 +40,7 @@ func GetInstance() (model.Instance, error) {
 	selectedInstanceName := instancelist[userInputInt - 1].(string)
 
 	// Read config file in selected instance directory
-	configJson, _ := os.ReadFile(filepath.Join(config.INSTANCE_PATH_DIR, selectedInstanceName, "config.json"))
+	configJson, _ := os.ReadFile(filepath.Join(config.InstanceDir, selectedInstanceName, "config.json"))
 
 	json.Unmarshal(configJson, &instance)
 

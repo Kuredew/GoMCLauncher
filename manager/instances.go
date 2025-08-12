@@ -31,7 +31,7 @@ func getDependency(instance model.Instance) {
 }
 
 func CreateNewInstance(instance model.Instance) bool {
-	newInstancePath := filepath.Join(config.INSTANCE_PATH_DIR, instance.Name)
+	newInstancePath := filepath.Join(config.InstanceDir, instance.Name)
 	os.MkdirAll(newInstancePath, 0755)
 
 	getDependency(instance)
@@ -40,7 +40,7 @@ func CreateNewInstance(instance model.Instance) bool {
 }
 
 func StartInstance(instance model.Instance) bool {
-	instancePath := filepath.Join(config.INSTANCE_PATH_DIR, instance.Name)
+	instancePath := filepath.Join(config.InstanceDir, instance.Name)
 	os.MkdirAll(instancePath, 0755)
 
 	getDependency(instance)
