@@ -19,7 +19,7 @@ func Download(savedPath string, url string) bool {
 	t := time.NewTicker(500 * time.Millisecond)
 	defer t.Stop()
 
-	Loop:
+Loop:
 	for {
 		select {
 		case <-t.C:
