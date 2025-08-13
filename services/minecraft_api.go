@@ -39,7 +39,7 @@ func GetVersionManifest() map[string]interface{} {
 	return data
 }
 
-func GetDependency(versionInfo map[string]interface{}) ([]interface{}, map[string]interface{}) {
+func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, map[string]interface{}) {
 	log.Print("Checking Dependency...")
 	
 	var versionId string
@@ -62,6 +62,7 @@ func GetDependency(versionInfo map[string]interface{}) ([]interface{}, map[strin
 	versionDependencyJson, err = utils.ReadFile(versionDependencyFilePath)
 	if err != nil {
 		versionDependencyJson, _ = utils.Response(versionInfo["url"].(string))
+		utils.WriteFile(versionDependencyFilePath, versionDependencyJson)
 	}
 	json.Unmarshal(versionDependencyJson, &versionDependency)
 
@@ -75,12 +76,9 @@ func GetDependency(versionInfo map[string]interface{}) ([]interface{}, map[strin
 	versionAssetListJson, err = utils.ReadFile(versionAssetListFilePath)
 	if err != nil {
 		versionAssetListJson, _ = utils.Response(versionDependency["assetIndex"].(map[string]interface{})["url"].(string))
+		utils.WriteFile(versionAssetListFilePath, versionAssetListJson)
 	}
 	json.Unmarshal(versionAssetListJson, &versionAssetList)
-	
-	// finally, save to file.
-	utils.WriteFile(versionAssetListFilePath, versionAssetListJson)
-	utils.WriteFile(versionDependencyFilePath, versionDependencyJson)
 
-	return versionDependency["libraries"].([]interface{}), versionAssetList
+	return versionDependency, versionAssetList
 }

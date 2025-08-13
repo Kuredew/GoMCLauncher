@@ -19,7 +19,7 @@ func main() {
 		manager.CreateNewInstance(model.Instance{Name: "Kureichi Minecraft", Version: "1.21.8", Modloader: "fabric"})
 	}
 
-	log.Printf("\nStarting %s", instance.Name)
+	log.Printf("Initializing %s", instance.Name)
 
 	manager.StartInstance(instance)
 }

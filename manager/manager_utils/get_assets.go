@@ -18,8 +18,6 @@ func isAssetDownloaded(assetPath string) bool {
 }
 
 func GetAsset(assetList map[string]interface{}) {
-	fmt.Print("Getting Assets")
-
 	var downloadUrl string = "https://resources.download.minecraft.net/%s/%s"
 	var objectPath string
 
@@ -43,17 +41,15 @@ func GetAsset(assetList map[string]interface{}) {
 		objectHashId := string([]rune(objectHash)[:2])
 
 		objectPath = filepath.Join(config.AssetObjectDir, objectHashId, objectHash)
-
-		log.Printf("[%v/%v] Checking %s", assetIndex, len(sortedObjectKey), key)
-
-		objectDownloadUrl := fmt.Sprintf(downloadUrl, objectHashId, objectHash)
-
 		
+		objectDownloadUrl := fmt.Sprintf(downloadUrl, objectHashId, objectHash)
 		if isAssetDownloaded(objectPath) {
 			continue
 		}
 
 		utils.Download(objectPath, objectDownloadUrl)
-	}
 
+		log.Printf("[%v/%v] Downloaded", assetIndex, len(sortedObjectKey))
+	}
+	log.Printf("Loaded %v assets.", len(sortedObjectKey))
 }
