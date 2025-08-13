@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/Kuredew/GoMCLauncher/manager"
@@ -12,6 +13,8 @@ var MC_LATEST_VERSION string
 var ASSET_INDEX int
 
 func main() {
+	fmt.Print("\033[H\033[2J")
+
 	instance, err := managerutils.GetInstance()
 	if err != nil {
 		log.Printf("Error getting Instance : %s", err)

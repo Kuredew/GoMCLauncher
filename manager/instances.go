@@ -2,7 +2,7 @@ package manager
 
 import (
 	//"bufio"
-	"fmt"
+
 	"io"
 	"log"
 	"os"
@@ -21,6 +21,7 @@ var gameDir string
 func getDependency(instance model.Instance) {
 	var dependencyInfo map[string]interface{}
 	var assetList map[string]interface{}
+	var assetIndex string
 	var classpath string
 
 	versionManifest := services.GetVersionManifest()
@@ -31,7 +32,8 @@ func getDependency(instance model.Instance) {
 		id := value.(map[string]interface{})["id"].(string)
 
 		if id == instance.Version {
-			dependencyInfo, assetList = services.GetDependency(value.(map[string]interface{}))
+			dependencyInfo, assetList, assetIndex = services.GetDependency(value.(map[string]interface{}))
+			instance.AssetIndex = assetIndex
 			
 			classpath = managerutils.GetLibraries(dependencyInfo)
 			Argument = managerutils.GetArg(dependencyInfo, classpath, instance)
@@ -56,9 +58,7 @@ func StartInstance(instance model.Instance) bool {
 
 	getDependency(instance)
 
-	//fmt.Printf("%s\n", Argument)
-
-	fmt.Printf("Launching %s...\n\n", instance.Name)
+	log.Printf("Launching %s...\n\n", instance.Name)
 	cmd := exec.Command(config.JavaPath, Argument...)
 
 	stdout, _ := cmd.StdoutPipe()

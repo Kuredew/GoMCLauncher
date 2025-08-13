@@ -33,7 +33,18 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 
 		artifact := libraryInfo.(map[string]interface{})["downloads"].(map[string]interface{})["artifact"].(map[string]interface{})
 		//libraryDownloadPath = filepath.Join(config.LibrariesDir, artifact["path"].(string))
-		libraryDownloadPath = filepath.Join(config.LibrariesDir, strings.ReplaceAll(libraryName, ":", "/"))
+
+		// idk why im do this.
+		splittedLibraryName := strings.Split(libraryName, ":")
+		var path []string
+		firstPath := strings.ReplaceAll(splittedLibraryName[0], ".", "/")
+		secondPath := splittedLibraryName[1] + "/" + splittedLibraryName[2]
+		thirdPath := splittedLibraryName[1] + "-" + splittedLibraryName[2] + ".jar"
+		path = append(path, firstPath)
+		path = append(path, secondPath)
+		path = append(path, thirdPath)
+
+		libraryDownloadPath = filepath.Join(config.LibrariesDir, strings.Join(path, "/"))
 		libraryDownloadUrl = artifact["url"].(string)
 
 		// Handle rules in libraries.

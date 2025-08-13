@@ -39,7 +39,7 @@ func GetVersionManifest() map[string]interface{} {
 	return data
 }
 
-func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, map[string]interface{}) {
+func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, map[string]interface{}, string) {
 	log.Print("Checking Dependency...")
 	
 	var versionId string
@@ -80,5 +80,5 @@ func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, 
 	}
 	json.Unmarshal(versionAssetListJson, &versionAssetList)
 
-	return versionDependency, versionAssetList
+	return versionDependency, versionAssetList, versionAssetId
 }

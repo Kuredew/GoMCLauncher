@@ -38,6 +38,7 @@ func GetJavaArg(JVMArgRaw []interface{}, mainClass string, classpath string) []s
 	javaArgument = append(javaArgument, "-Dminecraft.api.account.host=https://invalid.invalid")
 	javaArgument = append(javaArgument, "-Dminecraft.api.session.host=https://invalid.invalid")
 	javaArgument = append(javaArgument, "-Dminecraft.api.services.host=https://invalid.invalid")
+	javaArgument = append(javaArgument, "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
 
 	for _, value := range JVMArgRaw {
 		if _, ok := value.(map[string]interface{}); ok {
@@ -60,13 +61,12 @@ func GetGameArg(gameArgRaw []interface{}, instance model.Instance) []string {
 	versionNameQuoted := fmt.Sprintf(`"%s"`, instance.Version)
 	gameDirQuoted := filepath.Join(config.InstanceDir, instance.Name)
 	assetDirQuoted := config.AssetDir
-	assetIndexNameQuoted := instance.AssetIndex
 
 	os.Setenv("AUTH_PLAYER_NAME", usernameQuoted)
 	os.Setenv("VERSION_NAME", versionNameQuoted)
 	os.Setenv("GAME_DIRECTORY", gameDirQuoted)
 	os.Setenv("ASSETS_ROOT", assetDirQuoted)
-	os.Setenv("ASSETS_INDEX_NAME", assetIndexNameQuoted)
+	os.Setenv("ASSETS_INDEX_NAME", instance.AssetIndex)
 	os.Setenv("LAUNCHER_VERSION", config.LauncherVersion)
 
 	os.Setenv("auth_uuid", `""`)
@@ -85,6 +85,7 @@ func GetGameArg(gameArgRaw []interface{}, instance model.Instance) []string {
 		gameArgument = append(gameArgument, finalString)
 
 	}
+	
 
 	return gameArgument
 }
