@@ -1,4 +1,4 @@
-package managerutils
+package managerpanel
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func GetInstance() (model.Instance, error) {
+func GetInstancePanel() (model.Instance, error) {
 	entries, _ := os.ReadDir(config.InstanceDir)
 	var isNewInstance bool = false
 	var instancelist []interface{}
@@ -79,9 +79,9 @@ func GetInstance() (model.Instance, error) {
 	}
 
 	if isNewInstance {
-		CreateNewInstance()
+		CreateNewInstancePanel()
 
-		return GetInstance()
+		return GetInstancePanel()
 	}
 
 	selectedInstanceName := instancelist[selected].(string)

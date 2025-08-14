@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/Kuredew/GoMCLauncher/manager"
-	managerutils "github.com/Kuredew/GoMCLauncher/manager/manager_utils"
+	managerpanel "github.com/Kuredew/GoMCLauncher/manager/manager_panel"
 	"github.com/Kuredew/GoMCLauncher/model"
 )
 
@@ -15,7 +15,7 @@ var ASSET_INDEX int
 func main() {
 	fmt.Print("\033[H\033[2J")
 
-	instance, err := managerutils.GetInstance()
+	instance, err := managerpanel.GetInstancePanel()
 	if err != nil {
 		log.Printf("Error getting Instance : %s", err)
 

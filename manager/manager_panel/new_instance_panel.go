@@ -1,4 +1,4 @@
-package managerutils
+package managerpanel
 
 import (
 	"encoding/json"
@@ -63,7 +63,7 @@ func changeModloader() {
 }
 
 
-func CreateNewInstance() error {
+func CreateNewInstancePanel() error {
 	instance.Modloader = "vanilla"
 	instance.AssetIndex = "default"
 
