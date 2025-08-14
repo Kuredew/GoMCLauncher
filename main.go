@@ -2,27 +2,24 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/Kuredew/GoMCLauncher/manager"
-	managerpanel "github.com/Kuredew/GoMCLauncher/manager/manager_panel"
-	"github.com/Kuredew/GoMCLauncher/model"
+	"github.com/Kuredew/GoMCLauncher/utils"
 )
-
-var MC_LATEST_VERSION string
-var ASSET_INDEX int
 
 func main() {
 	fmt.Print("\033[H\033[2J")
+	options := []string{"Select Instances", "Quit"}
 
-	instance, err := managerpanel.GetInstancePanel()
-	if err != nil {
-		log.Printf("Error getting Instance : %s", err)
+	for {
+		userSelected, _ := utils.CreatePanel("\n✨ Welcome to TuiMC\nSelect Options :\n\n", options)
 
-		manager.CreateNewInstance(model.Instance{Name: "Kureichi Minecraft", Version: "1.21.8", Modloader: "fabric"})
+		switch userSelected {
+		case 0:
+			manager.Initialize()
+		case 1:
+			os.Exit(0)
+		}
 	}
-
-	log.Printf("Initializing %s", instance.Name)
-
-	manager.StartInstance(instance)
 }

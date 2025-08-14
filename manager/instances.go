@@ -1,8 +1,8 @@
 package manager
 
 import (
-	//"bufio"
-
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -10,9 +10,11 @@ import (
 	"path/filepath"
 
 	"github.com/Kuredew/GoMCLauncher/config"
+	managerpanel "github.com/Kuredew/GoMCLauncher/manager/manager_panel"
 	managerutils "github.com/Kuredew/GoMCLauncher/manager/manager_utils"
 	"github.com/Kuredew/GoMCLauncher/model"
 	"github.com/Kuredew/GoMCLauncher/services"
+	"github.com/Kuredew/GoMCLauncher/utils"
 )
 
 var Argument []string
@@ -79,4 +81,50 @@ func StartInstance(instance model.Instance) bool {
 	cmd.Wait()
 	
 	return true
+}
+
+func Initialize() {
+	for {
+		instance, err := managerpanel.InstancePanel()
+		
+		if err != nil {
+			if errors.Is(err, managerpanel.ErrInstancePanelNewInstance) {
+				managerpanel.CreateNewInstancePanel()
+
+				continue
+			} else if errors.Is(err, managerpanel.ErrInstancePanelNoInstance) {
+				managerpanel.CreateNewInstancePanel()
+
+				continue
+			} else if errors.Is(err, managerpanel.ErrInstancePanelBack) {
+				return
+			}
+		}
+		
+LoopMenu:
+		for {
+			options := []string{"Play", "Modify Instance", "", "Back", "", "Delete Instance [Danger Zone]"}
+
+			headerString := fmt.Sprintf("Select Options for %s", instance.Name)
+
+			userSelected, _ := utils.CreatePanel(headerString, options)
+
+			switch userSelected {
+			case 0:
+				StartInstance(instance)
+			case 1:
+				managerpanel.ModifyInstancePanel(instance)
+				continue
+			case 3:
+				break LoopMenu
+			case 5:
+				err := managerutils.DeleteInstances(instance)
+				if err != nil {
+					continue
+				} else {
+					break LoopMenu
+				}
+			}
+		}
+	}
 }
