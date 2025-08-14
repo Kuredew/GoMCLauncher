@@ -2,15 +2,38 @@ package managerutils
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Kuredew/GoMCLauncher/config"
 	"github.com/Kuredew/GoMCLauncher/model"
 )
 
 func GetArg(dependencyInfo map[string]interface{}, classpath string, instance model.Instance) []string {
-	arguments := dependencyInfo["arguments"].(map[string]interface{})
+	var arguments = make(map[string]interface{})
+
+	args, ok := dependencyInfo["arguments"].(map[string]interface{})
+	if !ok {
+		//var gameArguments []string
+		var gameArgRaw []interface{}
+		var JVMArgRaw []interface{}
+
+		minecraftArguments := strings.Split(dependencyInfo["minecraftArguments"].(string), " ")
+		
+		for _, minecraftArgument := range minecraftArguments {
+			gameArgRaw = append(gameArgRaw, minecraftArgument)
+		}
+
+		JVMArgRaw = append(JVMArgRaw, "-Djava.library.path=${natives_directory}", "-Djna.tmpdir=${natives_directory}", "-Dorg.lwjgl.system.SharedLibraryExtractPath=${natives_directory}", "-Dio.netty.native.workdir=${natives_directory}", "-Dminecraft.launcher.brand=${launcher_name}", "-Dminecraft.launcher.version=${launcher_version}", "-cp", "${classpath}")
+
+		arguments["game"] = gameArgRaw
+		arguments["jvm"] = JVMArgRaw
+	} else {
+		maps.Copy(arguments, args)
+	}
+
 	mainClass := dependencyInfo["mainClass"].(string)
 
 	gameArgRaw := arguments["game"].([]interface{})
@@ -27,7 +50,7 @@ func GetJavaArg(JVMArgRaw []interface{}, mainClass string, classpath string) []s
 	var javaArgument []string
 	classpathQuoted := fmt.Sprintf(`"%s"`, classpath)
 
-	os.Setenv("NATIVES_DIRECTORY", config.LibrariesDir)
+	os.Setenv("NATIVES_DIRECTORY", config.NativeLibrariesDir)
 	os.Setenv("LAUNCHER_NAME", config.LauncherName)
 	os.Setenv("LAUNCHER_VERSION", config.LauncherVersion)
 	os.Setenv("CLASSPATH", classpathQuoted)
@@ -41,6 +64,7 @@ func GetJavaArg(JVMArgRaw []interface{}, mainClass string, classpath string) []s
 	javaArgument = append(javaArgument, "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
 
 	for _, value := range JVMArgRaw {
+		// Ignore Rules
 		if _, ok := value.(map[string]interface{}); ok {
 			continue
 		}
@@ -66,6 +90,7 @@ func GetGameArg(gameArgRaw []interface{}, instance model.Instance) []string {
 	os.Setenv("VERSION_NAME", versionNameQuoted)
 	os.Setenv("GAME_DIRECTORY", gameDirQuoted)
 	os.Setenv("ASSETS_ROOT", assetDirQuoted)
+	os.Setenv("GAME_ASSETS", assetDirQuoted)
 	os.Setenv("ASSETS_INDEX_NAME", instance.AssetIndex)
 	os.Setenv("LAUNCHER_VERSION", config.LauncherVersion)
 
@@ -77,6 +102,7 @@ func GetGameArg(gameArgRaw []interface{}, instance model.Instance) []string {
 	os.Setenv("version_type", `""`)
 
 	for _, value := range gameArgRaw {
+		// Males ngurusin rules
 		if _, ok := value.(map[string]interface{}); ok {
 			continue
 		}

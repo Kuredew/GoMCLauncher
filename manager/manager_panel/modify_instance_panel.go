@@ -8,8 +8,9 @@ import (
 	"github.com/Kuredew/GoMCLauncher/utils"
 )
 
-func ModifyInstancePanel(instance model.Instance) {
-	oldInstance := instance
+func ModifyInstancePanel(instanceAddress *model.Instance) {
+	instance := *instanceAddress
+	oldInstance := *instanceAddress
 
 	for {
 		options := []string{"Instance Name        " + instance.Name, "Minecraft Version    " + instance.Version, "", "Save", "Cancel"}
@@ -28,6 +29,8 @@ func ModifyInstancePanel(instance model.Instance) {
 			managerutils.ChangeVersion(&instance)
 		case 3:
 			managerutils.SaveModifiedInstance(oldInstance, instance)
+			*instanceAddress = instance
+			
 			return
 		case 4:
 			return

@@ -1,6 +1,7 @@
 package managerutils
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -22,19 +23,15 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 
 	var classpath []string
 	downloadList := make(map[string]map[string]string)
+	var libraryName string
 	var libraryNameList []string
 	var libraryDownloadPath string
 	var libraryDownloadUrl string
 
 	for _, libraryInfo := range libraries {
 		var isAllow bool = true
-
-		libraryName := libraryInfo.(map[string]interface{})["name"].(string)
-
-		artifact := libraryInfo.(map[string]interface{})["downloads"].(map[string]interface{})["artifact"].(map[string]interface{})
-		//libraryDownloadPath = filepath.Join(config.LibrariesDir, artifact["path"].(string))
-
 		// idk why im do this.
+		/*
 		splittedLibraryName := strings.Split(libraryName, ":")
 		var path []string
 		firstPath := strings.ReplaceAll(splittedLibraryName[0], ".", "/")
@@ -43,9 +40,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 		path = append(path, firstPath)
 		path = append(path, secondPath)
 		path = append(path, thirdPath)
-
-		libraryDownloadPath = filepath.Join(config.LibrariesDir, strings.Join(path, "/"))
-		libraryDownloadUrl = artifact["url"].(string)
+		*/
 
 		// Handle rules in libraries.
 		if rules, ok := libraryInfo.(map[string]interface{})["rules"]; ok {
@@ -83,32 +78,53 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 		}
 
 		if isAllow {
+			libraryName = libraryInfo.(map[string]interface{})["name"].(string)
+			
 			// Handle natives libraries for old minecraft.
 			if natives, ok := libraryInfo.(map[string]interface{})["natives"]; ok {
-				for key, value := range natives.(map[string]interface{}) {
+				for key, class := range natives.(map[string]interface{}) {
+					os.Setenv("arch", "64")
+
 					if key != "windows" {
 						continue
 					}
+
 					classifiers, ok := libraryInfo.(map[string]interface{})["downloads"].(map[string]interface{})["classifiers"]
 
 					if !ok {
 						continue
 					}
 
-					nativeDownloadPath := filepath.Join(config.LibrariesDir, classifiers.(map[string]interface{})[value.(string)].(map[string]interface{})["path"].(string))
-					nativeDownloadUrl := classifiers.(map[string]interface{})[value.(string)].(map[string]interface{})["url"].(string)
+					classModified := os.ExpandEnv(class.(string))
 
-					nativeLibraryName := libraryName + "natives"
+					nativeDownloadPath := filepath.Join(config.LibrariesDir, classifiers.(map[string]interface{})[classModified].(map[string]interface{})["path"].(string))
+					nativeDownloadUrl := classifiers.(map[string]interface{})[classModified].(map[string]interface{})["url"].(string)
+
+					nativeLibraryName := libraryName + "-natives"
 
 					downloadList[nativeLibraryName] = make(map[string]string)
 					downloadList[nativeLibraryName][nativeDownloadPath] = nativeDownloadUrl
 					libraryNameList = append(libraryNameList, nativeLibraryName)
+
+					fmt.Printf("NATIVES %s\n    Path : %s\n", nativeLibraryName, nativeDownloadPath)
 				}
 			}
+			//log.Printf("Indexing %s", libraryName)
 
-			downloadList[libraryName] = make(map[string]string)
-			downloadList[libraryName][libraryDownloadPath] = libraryDownloadUrl
-			libraryNameList = append(libraryNameList, libraryName)
+			// Append library and path if "artifact" in "downloads"
+			artifact, ok := libraryInfo.(map[string]interface{})["downloads"].(map[string]interface{})["artifact"].(map[string]interface{})
+			if ok {
+				libraryDownloadPath = filepath.Join(config.LibrariesDir, artifact["path"].(string))
+
+				//libraryDownloadPath = filepath.Join(config.LibrariesDir, strings.Join(path, "/"))
+				libraryDownloadUrl = artifact["url"].(string)
+
+				downloadList[libraryName] = make(map[string]string)
+				downloadList[libraryName][libraryDownloadPath] = libraryDownloadUrl
+				libraryNameList = append(libraryNameList, libraryName)
+
+				fmt.Printf("JAR %s\n    Path : %s\n", libraryName, libraryDownloadPath)
+			}
 		}
 	}
 	// Handle Client.
@@ -119,6 +135,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 	downloadList["client"][clientDownloadPath] = clientDownloadUrl
 	libraryNameList = append(libraryNameList, "client")
 
+	fmt.Print("\n\n")
 	// Download
 	for index, libraryName := range libraryNameList {
 		downloadInfo := downloadList[libraryName]
@@ -131,7 +148,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 			url = value
 		}
 
-		
+		//log.Printf("LOADED %s From %s", path, libraryName)
 		classpath = append(classpath, path)
 		
 		if isLibraryDownloaded(path) {
@@ -142,6 +159,24 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 
 		log.Printf("[%v/%v] Downloaded", index+1, len(libraryNameList))
 	}
+
+	// Extract DLL from Jar files
+	for _, libraryName := range libraryNameList { 
+		if strings.Contains(libraryName, "-natives") {
+			log.Printf("Extacting %s", libraryName)
+			downloadInfo := downloadList[libraryName]
+			var path string
+
+			for key := range downloadInfo {
+				path = key
+			}
+			err := utils.ExtractDLL(config.NativeLibrariesDir, path)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
 	log.Printf("Loaded %v library.", len(libraryNameList))
 
 	return strings.Join(classpath, ";")

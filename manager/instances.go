@@ -39,6 +39,7 @@ func getDependency(instance model.Instance) {
 			
 			classpath = managerutils.GetLibraries(dependencyInfo)
 			Argument = managerutils.GetArg(dependencyInfo, classpath, instance)
+			//fmt.Print(Argument)
 
 			managerutils.GetAsset(assetList)
 		}
@@ -54,7 +55,7 @@ func CreateNewInstance(instance model.Instance) bool {
 	return true
 }
 
-func StartInstance(instance model.Instance) bool {
+func StartInstance(instance model.Instance) error {
 	gameDir = filepath.Join(config.InstanceDir, instance.Name)
 	os.MkdirAll(gameDir, 0755)
 
@@ -68,6 +69,7 @@ func StartInstance(instance model.Instance) bool {
 	
 	if err := cmd.Start(); err != nil {
 		log.Printf("Error calling java client : %s", err)
+		return err
 	}
 
 	go func() {
@@ -80,10 +82,12 @@ func StartInstance(instance model.Instance) bool {
 
 	cmd.Wait()
 	
-	return true
+	return nil
 }
 
-func Initialize() {
+var ErrBack error = errors.New("back")
+
+func Initialize() error {
 	for {
 		instance, err := managerpanel.InstancePanel()
 		
@@ -97,7 +101,7 @@ func Initialize() {
 
 				continue
 			} else if errors.Is(err, managerpanel.ErrInstancePanelBack) {
-				return
+				return ErrBack
 			}
 		}
 		
@@ -111,9 +115,16 @@ LoopMenu:
 
 			switch userSelected {
 			case 0:
-				StartInstance(instance)
+				err := StartInstance(instance)
+				if err != nil {
+					return err
+				}
+
+				os.RemoveAll(config.NativeLibrariesDir)
+
+				return ErrBack
 			case 1:
-				managerpanel.ModifyInstancePanel(instance)
+				managerpanel.ModifyInstancePanel(&instance)
 				continue
 			case 3:
 				break LoopMenu

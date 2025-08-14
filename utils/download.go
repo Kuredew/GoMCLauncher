@@ -8,38 +8,41 @@ import (
 	"github.com/cavaliergopher/grab/v3"
 )
 
-func Download(savedPath string, url string) bool {
-	client := grab.NewClient()
-	req, _ := grab.NewRequest(savedPath, url)
-
-	log.Printf("Downloading %v...\n", req.URL())
-	resp := client.Do(req)
-
-	// start UI loop
-	t := time.NewTicker(500 * time.Millisecond)
-	defer t.Stop()
-
-	var downloadingStr string
-Loop:
+func Download(savedPath string, url string) {
+MainLoop:
 	for {
-		select {
-		case <-t.C:
-			currentDownloadingStr := fmt.Sprintf("   Downloading (%.2f%%)\r",100*resp.Progress())
+		client := grab.NewClient()
+		req, _ := grab.NewRequest(savedPath, url)
 
-			if currentDownloadingStr != downloadingStr{
-				downloadingStr = currentDownloadingStr
-				fmt.Print(downloadingStr)
+		log.Printf("Downloading %v...\n", req.URL())
+		resp := client.Do(req)
+
+		// start UI loop
+		t := time.NewTicker(500 * time.Millisecond)
+		defer t.Stop()
+
+		var downloadingStr string
+	DownloadLoop:
+		for {
+			select {
+			case <-t.C:
+				currentDownloadingStr := fmt.Sprintf("   Downloading (%.2f%%)\r",100*resp.Progress())
+
+				if currentDownloadingStr != downloadingStr{
+					downloadingStr = currentDownloadingStr
+					fmt.Print(downloadingStr)
+				}
+			case <-resp.Done:
+				break DownloadLoop
 			}
-		case <-resp.Done:
-			break Loop
+
 		}
+		if err := resp.Err(); err != nil {
+			fmt.Printf("   Downloading Failed. %v\n", err)
+			continue MainLoop
+		}
+		fmt.Printf("   Download saved to %v\n", savedPath)
 
+		break MainLoop
 	}
-	if err := resp.Err(); err != nil {
-		fmt.Printf("   Downloading Failed. %v\n", err)
-		return Download(savedPath, url)
-	}
-	fmt.Printf("   Download saved to %v\n", savedPath)
-
-	return true
 }
