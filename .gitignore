@@ -1,5 +1,8 @@
 data/
 logs/
+build/
+
+config/config.json
 
 test.bat
 main.exe
