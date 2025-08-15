@@ -3,11 +3,11 @@ package manager
 import (
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/Kuredew/GoMCLauncher/config"
 	managerpanel "github.com/Kuredew/GoMCLauncher/manager/manager_panel"
@@ -20,11 +20,12 @@ import (
 var Argument []string
 var gameDir string
 
-func getDependency(instance model.Instance) {
+func getDependency(instance model.Instance) (map[string]interface{}, map[string]interface{}, string) {
+	
 	var dependencyInfo map[string]interface{}
 	var assetList map[string]interface{}
 	var assetIndex string
-	var classpath string
+
 
 	versionManifest := services.GetVersionManifest()
 	versionList := versionManifest["versions"].([]interface{})
@@ -35,68 +36,99 @@ func getDependency(instance model.Instance) {
 
 		if id == instance.Version {
 			dependencyInfo, assetList, assetIndex = services.GetDependency(value.(map[string]interface{}))
-			instance.AssetIndex = assetIndex
-			
-			classpath = managerutils.GetLibraries(dependencyInfo)
-			Argument = managerutils.GetArg(dependencyInfo, classpath, instance)
-			//fmt.Print(Argument)
+		}
+	}
 
-			managerutils.GetAsset(assetList)
+	return dependencyInfo, assetList, assetIndex
+}
+
+func getJavaRuntime() string {
+	log.Print("Getting java-runtime...")
+
+	for {
+		// search jdk folder from java-runtime directory
+		items, _ := os.ReadDir(config.JavaRuntimeDir)
+		for _, item := range items {
+			itemName := item.Name()
+
+			if !strings.Contains(itemName, "jdk") {
+				continue
+			}
+
+			JavaRuntimeFile := filepath.Join(config.JavaRuntimeDir, itemName, "bin", "java.exe")
+
+			if !utils.FileExists(JavaRuntimeFile) {
+				log.Printf("%s Not Exist", JavaRuntimeFile)
+
+				break
+			}
+
+			log.Printf("Launching Java at %s", JavaRuntimeFile)
+			return JavaRuntimeFile
+		}
+		
+		// if zip not exist, download it!
+		if !utils.FileExists(config.JavaRuntimeZip) {
+			log.Print("Java Archive not exist")
+			utils.Download(config.JavaRuntimeZip, config.JavaDownloadUrl)
+		}
+
+		log.Print("Extracting Java...")
+		err := utils.ExtractZIP(config.JavaRuntimeDir, config.JavaRuntimeZip)
+		if err != nil {
+			log.Printf("Extracting java error, please wait...")
+			utils.Download(config.JavaRuntimeZip, config.JavaDownloadUrl)
 		}
 	}
 }
 
-func CreateNewInstance(instance model.Instance) bool {
-	newInstancePath := filepath.Join(config.InstanceDir, instance.Name)
-	os.MkdirAll(newInstancePath, 0755)
+func StartInstance(instance model.Instance, configModel model.Config) error {
+	cooldown := 3
 
-	getDependency(instance)
+	// Mwehehe
+	for {
+		fmt.Printf("Launching in %v second...\r", cooldown)
+		cooldown--
+		time.Sleep(1 * time.Second)
+		
+		if cooldown == 0 {
+			break
+		}
+	}
 
-	return true
-}
-
-func StartInstance(instance model.Instance) error {
 	gameDir = filepath.Join(config.InstanceDir, instance.Name)
 	os.MkdirAll(gameDir, 0755)
 
-	getDependency(instance)
+	// Get Dependency
+	dependencyInfo, assetList, assetIndex := getDependency(instance)
+	instance.AssetIndex = assetIndex
+			
+	classpath := managerutils.GetLibraries(dependencyInfo)
+	Argument = managerutils.GetArg(dependencyInfo, classpath, instance, configModel)
+	managerutils.GetAsset(assetList)
 
+	javaPath := getJavaRuntime()
 	log.Printf("Launching %s...\n\n", instance.Name)
-	cmd := exec.Command(config.JavaPath, Argument...)
 
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
-	
-	if err := cmd.Start(); err != nil {
-		log.Printf("Error calling java client : %s", err)
-		return err
-	}
+	utils.ExecuteCMD(javaPath, Argument...)
 
-	go func() {
-		io.Copy(os.Stdout, stdout)
-	}()
+	log.Print("\nClearing Cache...\n")
+	os.RemoveAll(config.NativeLibrariesDir)
 
-	go func() {
-		io.Copy(os.Stderr, stderr)
-	}()
+	fmt.Print("\n\n[ Type any to return Home ]")
+	_ = utils.AskUserInput()
 
-	cmd.Wait()
-	
 	return nil
 }
 
 var ErrBack error = errors.New("back")
 
-func Initialize() error {
+func Initialize(configModel model.Config) error {
 	for {
 		instance, err := managerpanel.InstancePanel()
 		
 		if err != nil {
 			if errors.Is(err, managerpanel.ErrInstancePanelNewInstance) {
-				managerpanel.CreateNewInstancePanel()
-
-				continue
-			} else if errors.Is(err, managerpanel.ErrInstancePanelNoInstance) {
 				managerpanel.CreateNewInstancePanel()
 
 				continue
@@ -115,12 +147,10 @@ LoopMenu:
 
 			switch userSelected {
 			case 0:
-				err := StartInstance(instance)
+				err := StartInstance(instance, configModel)
 				if err != nil {
 					return err
 				}
-
-				os.RemoveAll(config.NativeLibrariesDir)
 
 				return ErrBack
 			case 1:

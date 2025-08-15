@@ -23,15 +23,8 @@ func GetVersionManifest() map[string]interface{} {
 		json.Unmarshal(dataJson, &data)
 		return data
 	}
-
-	dataJson, err = utils.Response(url)
-
-	if err != nil {
-		log.Fatalf("Error while fetching : %s", err)
-
-		log.Print("Retrying...")
-		return GetVersionManifest()
-	} 
+	
+	dataJson = utils.Response(url)
 
 	utils.WriteFile(config.AssetVersionManifestFile, dataJson)
 
@@ -61,7 +54,7 @@ func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, 
 	// get version dependency
 	versionDependencyJson, err = utils.ReadFile(versionDependencyFilePath)
 	if err != nil {
-		versionDependencyJson, _ = utils.Response(versionInfo["url"].(string))
+		versionDependencyJson = utils.Response(versionInfo["url"].(string))
 		utils.WriteFile(versionDependencyFilePath, versionDependencyJson)
 	}
 	json.Unmarshal(versionDependencyJson, &versionDependency)
@@ -75,7 +68,7 @@ func GetDependency(versionInfo map[string]interface{}) (map[string]interface{}, 
 	// get version assets list
 	versionAssetListJson, err = utils.ReadFile(versionAssetListFilePath)
 	if err != nil {
-		versionAssetListJson, _ = utils.Response(versionDependency["assetIndex"].(map[string]interface{})["url"].(string))
+		versionAssetListJson = utils.Response(versionDependency["assetIndex"].(map[string]interface{})["url"].(string))
 		utils.WriteFile(versionAssetListFilePath, versionAssetListJson)
 	}
 	json.Unmarshal(versionAssetListJson, &versionAssetList)

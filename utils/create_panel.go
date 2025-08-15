@@ -14,7 +14,7 @@ func CreatePanel(headerString string, choices []string) (int, error) {
 
 	selected := 0
 
-	blue := color.New(color.FgBlue).SprintFunc()
+	blue := color.New(color.BgBlue).SprintFunc()
 	for {
 		ClearScreen()
 

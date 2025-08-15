@@ -106,7 +106,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 					downloadList[nativeLibraryName][nativeDownloadPath] = nativeDownloadUrl
 					libraryNameList = append(libraryNameList, nativeLibraryName)
 
-					fmt.Printf("NATIVES %s\n    Path : %s\n", nativeLibraryName, nativeDownloadPath)
+					//fmt.Printf("NATIVES %s\n    Path : %s\n", nativeLibraryName, nativeDownloadPath)
 				}
 			}
 			//log.Printf("Indexing %s", libraryName)
@@ -123,7 +123,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 				downloadList[libraryName][libraryDownloadPath] = libraryDownloadUrl
 				libraryNameList = append(libraryNameList, libraryName)
 
-				fmt.Printf("JAR %s\n    Path : %s\n", libraryName, libraryDownloadPath)
+				//fmt.Printf("JAR %s\n    Path : %s\n", libraryName, libraryDownloadPath)
 			}
 		}
 	}
@@ -161,18 +161,28 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 	}
 
 	// Extract DLL from Jar files
+	log.Println("Extracting Native Library...")
 	for _, libraryName := range libraryNameList { 
 		if strings.Contains(libraryName, "-natives") {
-			log.Printf("Extacting %s", libraryName)
 			downloadInfo := downloadList[libraryName]
 			var path string
+			var url string
 
-			for key := range downloadInfo {
+			for key, value := range downloadInfo {
 				path = key
+				url = value
 			}
-			err := utils.ExtractDLL(config.NativeLibrariesDir, path)
-			if err != nil {
-				log.Fatal(err)
+
+			ExtractLoop:
+			for {
+				err := utils.ExtractZIP(config.NativeLibrariesDir, path)
+				if err != nil {
+					log.Println("Extract library error!, please wait...")
+
+					utils.Download(path, url)
+				} else {
+					break ExtractLoop
+				}
 			}
 		}
 	}

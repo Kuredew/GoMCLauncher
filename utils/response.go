@@ -3,22 +3,24 @@ package utils
 import (
 	"net/http"
 	
-	//"fmt"
+	"fmt"
 	"io"
 	"log"
 )
 
-func Response(url string) ([]byte, error) {
-	log.Printf("Fetching %s", url)
+func Response(url string) ([]byte) {
+	for {
+		fmt.Printf("    GET %s\n", url)
 
-	response, err := http.Get(url)
-	if err != nil {
-		return []byte(""), err
+		response, err := http.Get(url)
+		if err != nil {
+			log.Print("Failed, retrying...")
+			continue
+		}
+
+		data, _ := io.ReadAll(response.Body)
+		return data
 	}
-
-	data, err := io.ReadAll(response.Body)
-	return data, err
-
 	//return response, err
 
 	//return string(responseData)

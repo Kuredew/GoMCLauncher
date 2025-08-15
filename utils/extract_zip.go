@@ -2,14 +2,14 @@ package utils
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 )
 
-func ExtractDLL(destPath string, jarPath string) error {
-	r, err := zip.OpenReader(jarPath)
+func ExtractZIP(destPath string, zipPath string) error {
+	r, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return err
 	}
@@ -40,6 +40,6 @@ func ExtractDLL(destPath string, jarPath string) error {
 			return err
 		}
 	}
-	log.Printf("Extracted %s to %s", jarPath, destPath)
+	fmt.Printf("    Extracted %s to %s\n", zipPath, destPath)
 	return nil
 }

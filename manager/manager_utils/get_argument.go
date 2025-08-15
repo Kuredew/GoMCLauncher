@@ -11,7 +11,7 @@ import (
 	"github.com/Kuredew/GoMCLauncher/model"
 )
 
-func GetArg(dependencyInfo map[string]interface{}, classpath string, instance model.Instance) []string {
+func GetArg(dependencyInfo map[string]interface{}, classpath string, instance model.Instance, configModel model.Config) []string {
 	var arguments = make(map[string]interface{})
 
 	args, ok := dependencyInfo["arguments"].(map[string]interface{})
@@ -39,7 +39,7 @@ func GetArg(dependencyInfo map[string]interface{}, classpath string, instance mo
 	gameArgRaw := arguments["game"].([]interface{})
 	JVMArgRaw := arguments["jvm"].([]interface{})
 
-	gameArg := GetGameArg(gameArgRaw, instance)
+	gameArg := GetGameArg(gameArgRaw, instance, configModel)
 	JVMArg := GetJavaArg(JVMArgRaw, mainClass, classpath)
 
 
@@ -78,10 +78,10 @@ func GetJavaArg(JVMArgRaw []interface{}, mainClass string, classpath string) []s
 	return javaArgument
 }
 
-func GetGameArg(gameArgRaw []interface{}, instance model.Instance) []string {
+func GetGameArg(gameArgRaw []interface{}, instance model.Instance, configModel model.Config) []string {
 	var gameArgument []string
 
-	usernameQuoted := fmt.Sprintf(`"%s"`, config.Username)
+	usernameQuoted := fmt.Sprintf(`"%s"`, configModel.PlayerName)
 	versionNameQuoted := fmt.Sprintf(`"%s"`, instance.Version)
 	gameDirQuoted := filepath.Join(config.InstanceDir, instance.Name)
 	assetDirQuoted := config.AssetDir

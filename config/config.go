@@ -3,18 +3,22 @@ package config
 import (
 	"path/filepath"
 )
+var ConfigFile string = "config/config.json"
 
 var LauncherName string = "GoMCLauncher"
 var LauncherVersion string = "1.0.0"
 
 var Username string = "Kureichi"
 
-// Java Options
-var JavaPath string = filepath.Clean("D:/Download/INSTALLER PROGRAMS/JAVA/jdk-21.0.6/bin/javaw.exe")
-
-
 // Data Directory
 var DATA_PATH string = "data"
+
+// Java Options
+var RuntimeDir string = filepath.Join(DATA_PATH, "runtimes")
+
+var JavaDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip"
+var JavaRuntimeZip string = filepath.Join(RuntimeDir, "java21.zip")
+var JavaRuntimeDir string = filepath.Join(RuntimeDir, "java-runtime")
 
 var InstanceDir string = filepath.Join(DATA_PATH, "instances")
 

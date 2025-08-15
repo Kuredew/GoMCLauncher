@@ -14,14 +14,13 @@ import (
 
 var ErrInstancePanelBack = errors.New("back")
 var ErrInstancePanelNewInstance = errors.New("newInstance")
-var ErrInstancePanelNoInstance = errors.New("noInstance")
 
 func InstancePanel() (model.Instance, error) {
 	instanceNameList := managerutils.GetInstances()
 	var instance model.Instance
 
 	if len(instanceNameList) < 1 {
-		return instance, ErrInstancePanelNoInstance
+		return instance, ErrInstancePanelNewInstance
 	}
 
 	instanceNameList = append(instanceNameList, "", "Create New Instance", "Back")
