@@ -22,10 +22,10 @@ everything works without problems, there may be problems with versions older tha
 
 ## ModLoader Support
 - [x] Vanilla
-- [] Forge
-- [] Neoforge
-- [] Fabric
-- [] Optifine
+- [ ] Forge
+- [ ] Neoforge
+- [ ] Fabric
+- [ ] Optifine
 
 *only vanilla is supported for now, i hope i have more time to add support to modloader*
 
