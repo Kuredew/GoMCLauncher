@@ -21,6 +21,7 @@ func isLibraryDownloaded(libraryPath string) bool {
 func GetLibraries(dependencyList map[string]interface{}) string {
 	libraries := dependencyList["libraries"].([]interface{})
 
+	var osStr string = utils.GetOSStr()
 	var classpath []string
 	downloadList := make(map[string]map[string]string)
 	var libraryName string
@@ -57,17 +58,17 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 				}
 
 				for _, osName := range os.(map[string]interface{}) {
-					if action.(string) == "allow" && osName == "windows" {
+					if action.(string) == "allow" && osName == osStr {
 						isAllow = true
 
 						break
 					}
 
-					if action.(string) == "allow" && osName != "windows" {
+					if action.(string) == "allow" && osName != osStr {
 						isAllow = false
 					}
 
-					if action.(string) == "disallow" && osName == "windows" {
+					if action.(string) == "disallow" && osName == osStr {
 						isAllow = false
 						log.Printf("Skipping disallow lib %s", libraryName)
 
@@ -85,7 +86,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 				for key, class := range natives.(map[string]interface{}) {
 					os.Setenv("arch", "64")
 
-					if key != "windows" {
+					if key != osStr {
 						continue
 					}
 
