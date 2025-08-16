@@ -44,6 +44,21 @@ func getDependency(instance model.Instance) (map[string]interface{}, map[string]
 
 func getJavaRuntime() string {
 	log.Print("Getting java-runtime...")
+	var javaExec string
+	var javaDownloadUrl string
+
+	osStr := utils.GetOSStr()
+	switch osStr {
+		case "windows":
+			javaDownloadUrl = config.JavaWinDownloadUrl
+			javaExec = "java.exe"
+		case "linux":
+			javaDownloadUrl = config.JavaLinuxDownloadUrl
+			javaExec = "java"
+		default:
+			javaDownloadUrl = config.JavaMacDownloadUrl
+			javaExec = "java"
+	}
 
 	for {
 		// search jdk folder from java-runtime directory
@@ -55,7 +70,7 @@ func getJavaRuntime() string {
 				continue
 			}
 
-			JavaRuntimeFile := filepath.Join(config.JavaRuntimeDir, itemName, "bin", "java.exe")
+			JavaRuntimeFile := filepath.Join(config.JavaRuntimeDir, itemName, "bin", javaExec)
 
 			if !utils.FileExists(JavaRuntimeFile) {
 				log.Printf("%s Not Exist", JavaRuntimeFile)
@@ -70,14 +85,14 @@ func getJavaRuntime() string {
 		// if zip not exist, download it!
 		if !utils.FileExists(config.JavaRuntimeZip) {
 			log.Print("Java Archive not exist")
-			utils.Download(config.JavaRuntimeZip, config.JavaDownloadUrl)
+			utils.Download(config.JavaRuntimeZip, javaDownloadUrl)
 		}
 
 		log.Print("Extracting Java...")
 		err := utils.ExtractZIP(config.JavaRuntimeDir, config.JavaRuntimeZip)
 		if err != nil {
 			log.Printf("Extracting java error, please wait...")
-			utils.Download(config.JavaRuntimeZip, config.JavaDownloadUrl)
+			utils.Download(config.JavaRuntimeZip, javaDownloadUrl)
 		}
 	}
 }

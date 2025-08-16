@@ -16,7 +16,10 @@ var DATA_PATH string = "data"
 // Java Options
 var RuntimeDir string = filepath.Join(DATA_PATH, "runtimes")
 
-var JavaDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip"
+var JavaWinDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip"
+var JavaLinuxDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb"
+var JavaMacDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_macos-x64_bin.tar.gz"
+
 var JavaRuntimeZip string = filepath.Join(RuntimeDir, "java21.zip")
 var JavaRuntimeDir string = filepath.Join(RuntimeDir, "java-runtime")
 
