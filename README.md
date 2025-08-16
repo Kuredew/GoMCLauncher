@@ -11,6 +11,7 @@ Version 1 Alpha 1 Release Now! see [Releases](https://github.com/Kuredew/GoMCLau
 - Uses Terminal User Interface
 - Support offline-account
 - Automatically download Java runtimes (Java 21)
+- Add extractor for Java archive and Native Libraries
 - Smooth dependency handling for native libraries
 
 > [!NOTE]  
