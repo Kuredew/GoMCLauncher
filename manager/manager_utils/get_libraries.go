@@ -190,5 +190,8 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 
 	log.Printf("Loaded %v library.", len(libraryNameList))
 
-	return strings.Join(classpath, ";")
+	if utils.GetOSStr() == "windows" {
+		return strings.Join(classpath, ";")
+	}
+	return strings.Join(classpath, ":")
 }
