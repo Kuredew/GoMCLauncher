@@ -24,7 +24,11 @@ func CreateNewInstancePanel() {
 
 	Loop:
 	for {
-		options := []string{"Instance Name        " + instance.Name, "Minecraft Version    " + instance.Version, "ModLoader            " + instance.Modloader, "", "Finish!", "Cancel"}
+		instanceName := utils.CheckValue(instance.Name)
+		instanceVersion := utils.CheckValue(instance.Version)
+		instanceModLoader := utils.CheckValue(instance.Modloader)
+
+		options := []string{"Instance Name        " + instanceName, "Minecraft Version    " + instanceVersion, "ModLoader            " + instanceModLoader, "", "Finish!", "Cancel"}
 		selected, err = utils.CreatePanel("✨ Complete this form to create New Instance.", options)
 		
 		if err != nil {

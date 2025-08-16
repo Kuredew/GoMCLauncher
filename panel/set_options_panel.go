@@ -29,7 +29,9 @@ func SetOptionsPanel(configModelAddress *model.Config) {
 	for {
 		configModel := *configModelAddress
 
-		options := []string{"Player Name        " + configModel.PlayerName, "", "Save", "Cancel"}
+		playerName := utils.CheckValue(configModel.PlayerName)
+
+		options := []string{"Player Name        " + playerName, "", "Save", "Cancel"}
 		userSelected, _ := utils.CreatePanel("These are the settings you need to fill in", options)
 
 		switch userSelected {

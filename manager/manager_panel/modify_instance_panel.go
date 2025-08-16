@@ -13,7 +13,10 @@ func ModifyInstancePanel(instanceAddress *model.Instance) {
 	oldInstance := *instanceAddress
 
 	for {
-		options := []string{"Instance Name        " + instance.Name, "Minecraft Version    " + instance.Version, "", "Save", "Cancel"}
+		instanceName := utils.CheckValue(instance.Name)
+		instanceVersion := utils.CheckValue(instance.Version)
+
+		options := []string{"Instance Name        " + instanceName, "Minecraft Version    " + instanceVersion, "", "Save", "Cancel"}
 
 		headerString := fmt.Sprintf("Modify %s Instance", instance.Name)
 
