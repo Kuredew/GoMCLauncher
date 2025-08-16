@@ -20,7 +20,10 @@ var JavaWinDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_wind
 var JavaLinuxDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb"
 var JavaMacDownloadUrl = "https://download.oracle.com/java/21/latest/jdk-21_macos-x64_bin.tar.gz"
 
-var JavaRuntimeZip string = filepath.Join(RuntimeDir, "java21.zip")
+var JavaWinRuntimeArchive string = filepath.Join(RuntimeDir, "java21.zip")
+var JavaLinuxRuntimeArchive string = filepath.Join(RuntimeDir, "java21.tar.gz")
+var JavaMacRuntimeArchive string = filepath.Join(RuntimeDir, "java21.tar.gz")
+
 var JavaRuntimeDir string = filepath.Join(RuntimeDir, "java-runtime")
 
 var InstanceDir string = filepath.Join(DATA_PATH, "instances")

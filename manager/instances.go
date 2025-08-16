@@ -46,17 +46,21 @@ func getJavaRuntime() string {
 	log.Print("Getting java-runtime...")
 	var javaExec string
 	var javaDownloadUrl string
+	var javaArchiveFile string
 
 	osStr := utils.GetOSStr()
 	switch osStr {
 		case "windows":
 			javaDownloadUrl = config.JavaWinDownloadUrl
+			javaArchiveFile = config.JavaWinRuntimeArchive
 			javaExec = "java.exe"
 		case "linux":
 			javaDownloadUrl = config.JavaLinuxDownloadUrl
+			javaArchiveFile = config.JavaLinuxRuntimeArchive
 			javaExec = "java"
 		default:
 			javaDownloadUrl = config.JavaMacDownloadUrl
+			javaArchiveFile = config.JavaMacRuntimeArchive
 			javaExec = "java"
 	}
 
@@ -83,16 +87,16 @@ func getJavaRuntime() string {
 		}
 		
 		// if zip not exist, download it!
-		if !utils.FileExists(config.JavaRuntimeZip) {
+		if !utils.FileExists(javaArchiveFile) {
 			log.Print("Java Archive not exist")
-			utils.Download(config.JavaRuntimeZip, javaDownloadUrl)
+			utils.Download(javaArchiveFile, javaDownloadUrl)
 		}
 
 		log.Print("Extracting Java...")
-		err := utils.ExtractZIP(config.JavaRuntimeDir, config.JavaRuntimeZip)
+		err := utils.ExtractArchive(config.JavaRuntimeDir, javaArchiveFile)
 		if err != nil {
 			log.Printf("Extracting java error, please wait...")
-			utils.Download(config.JavaRuntimeZip, javaDownloadUrl)
+			utils.Download(javaArchiveFile, javaDownloadUrl)
 		}
 	}
 }

@@ -176,7 +176,7 @@ func GetLibraries(dependencyList map[string]interface{}) string {
 
 			ExtractLoop:
 			for {
-				err := utils.ExtractZIP(config.NativeLibrariesDir, path)
+				err := utils.ExtractArchive(config.NativeLibrariesDir, path)
 				if err != nil {
 					log.Println("Extract library error!, please wait...")
 
