@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/eiannone/keyboard"
@@ -27,7 +26,7 @@ func CreatePanel(headerString string, choices []string) (int, error) {
 				fmt.Printf("    %s\n", choice)
 			}
 		}
-		fmt.Print("\n\nUse Arrow Keys [↑↓] and enter to select value\nPress ESC to Back\n\n")
+		fmt.Print("\n\nUse Arrow Keys [↑↓] and enter to select value\n\n")
 
 		_, key, _ := keyboard.GetKey()
 
@@ -43,9 +42,6 @@ func CreatePanel(headerString string, choices []string) (int, error) {
 		}
 		if key == keyboard.KeyEnter {
 			return selected, nil
-		}
-		if key == keyboard.KeyEsc {
-			return selected, errors.New("back")
 		}
 	}
 
