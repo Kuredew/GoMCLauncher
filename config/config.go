@@ -6,7 +6,7 @@ import (
 var ConfigFile string = "config/config.json"
 
 var LauncherName string = "GoMCLauncher"
-var LauncherVersion string = "1.0.0"
+var LauncherVersion string = "1.0.0-aplha.2"
 
 var Username string = "Kureichi"
 

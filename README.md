@@ -2,7 +2,7 @@
 
 A Minecraft Java Launcher TUI written in GoLang.
 
-Version 1 Alpha 1 Release Now! see [Releases](https://github.com/Kuredew/GoMCLauncher/releases/latest)
+Version 1 Alpha 2 Release Now! see [Releases](https://github.com/Kuredew/GoMCLauncher/releases/latest)
 
 ## Preview
 ![Preview](https://github.com/user-attachments/assets/157ecb46-ab92-4081-9bd4-ae2e3f185055)
